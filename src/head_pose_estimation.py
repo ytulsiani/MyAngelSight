@@ -156,10 +156,39 @@ def main():
     INITIALIZED = False
     distracted = False
 
+    global_start = time.time()
+    negative_points = 0
+    points = 25
+
+    fontFace = cv2.FONT_HERSHEY_SIMPLEX
+    fontScale = 1
+    fontColor = (255, 255, 255)
+    points_to_send = 0
     while(True):
+        if (time.time() - global_start) > 30:
+            global_start = time.time()
+            points_to_send = points - negative_points
+
+            if (points_to_send <= -25): 
+                points_to_send = -25
+            
+            print "Hit cloud api with %s " % points_to_send
+            negative_points = 0
+
+
         # Capture frame-by-frame
         ret, frame = video_capture.read()
         gray = cv2.cvtColor(frame[roi_y1:roi_y2, roi_x1:roi_x2], cv2.COLOR_BGR2GRAY)
+
+
+
+        locy = int(frame.shape[0]*95/100) # the text location will be in the middle
+        locx = int(frame.shape[1]*90/100) #           of the frame for this example
+        screentime = str(round((time.time() - global_start),2))
+        cv2.putText(frame, screentime, (locx, locy), fontFace, fontScale, fontColor)
+        locy = int(frame.shape[0]*5/100) # the text location will be in the middle
+        locx = int(frame.shape[1]*30/100) #           of the frame for this example
+        cv2.putText(frame, "Your last score was: " + str(points_to_send), (locx, locy), fontFace, fontScale, fontColor) 
 
         #Looking for faces with cascade
         #The classifier moves over the ROI
@@ -197,7 +226,7 @@ def main():
                     startNotDistracted = time.time()
                 else:
                     endNotDistracted = time.time()
-                if endNotDistracted - startNotDistracted > 2:
+                if endNotDistracted - startNotDistracted > 0.4:
                     distracted = False
                     startTimer = False
 
@@ -264,7 +293,7 @@ def main():
                 text_x1 = face_x1
                 text_y1 = face_y1 - 3
                 if(text_y1 < 0): text_y1 = 0
-                cv2.putText(frame, "FACE", (text_x1,text_y1), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1);
+                cv2.putText(frame, "FACE", (text_x1,text_y1), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1)
                 cv2.rectangle(frame, 
                              (face_x1, face_y1), 
                              (face_x2, face_y2), 
@@ -323,16 +352,13 @@ def main():
                 distracted = True
             else:
                 end = time.time()
-                # print "END was initialized"
         
         
-        ##################### TO DO ######################
-        print round((end - start),2)
-        if (end - start) > 5:
-            distracted = False
-            # Hit google cloud function
-            print "Google cloud was hit!"
-            pass
+        if distracted:
+            if (end - start) > 2:
+                distracted = False            
+                negative_points += 15
+                # print "points to send", 25 - negative_points
 
         #Drawing a yellow rectangle
         # (and text) around the ROI.
