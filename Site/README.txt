@@ -1,9 +1,11 @@
-This site has been updated from a publicly available template by our team.
+###MyAngelSight Website
+
+#This site has been updated from a publicly available template by our team.
 
 Updated by: Natalie Wilkinson, Yash Tulsiani, Alberto Li, and Sanjana Jampana
 
 
-Credits:
+#Credits:
 
 Massively by HTML5 UP
 html5up.net | @ajlkn
