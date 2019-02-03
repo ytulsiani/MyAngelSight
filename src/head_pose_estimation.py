@@ -12,7 +12,8 @@ import cv2
 import sys
 from deepgaze.haar_cascade import haarCascade
 from deepgaze.face_landmark_detection import faceLandmarkDetection
-
+import requests
+# import subprocess
 
 #If True enables the verbose mode
 DEBUG = True 
@@ -48,6 +49,16 @@ P3D_STOMION = numpy.float32([10.0, 0.0, -75.0]) #62
 TRACKED_POINTS = (0, 4, 8, 12, 16, 17, 26, 27, 30, 33, 36, 39, 42, 45, 62)
 ALL_POINTS = list(range(0,68)) #Used for debug only
 
+def post_score(score):
+    payload = {
+        "userid" : str(1),
+        "score"   : str(score)
+    }
+
+    r = requests.post('https://us-central1-distracteddriving.cloudfunctions.net/updateScore', json=payload)
+
+    print "POST status code:", r.status_code
+    # print r.headers
 
 def main():
 
@@ -172,7 +183,8 @@ def main():
             if (points_to_send <= -25): 
                 points_to_send = -25
             
-            print "Hit cloud api with %s " % points_to_send
+            # print "Hit cloud api with %s " % points_to_send
+            post_score(points_to_send)
             negative_points = 0
 
 
@@ -386,3 +398,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # post_score(25)
