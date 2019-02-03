@@ -58,7 +58,7 @@ def post_score(score):
     r = requests.post('https://us-central1-distracteddriving.cloudfunctions.net/updateScore', json=payload)
 
     print "POST status code:", r.status_code
-    # print r.headers
+    return r.json()
 
 def main():
 
@@ -175,6 +175,8 @@ def main():
     fontScale = 1
     fontColor = (255, 255, 255)
     points_to_send = 0
+    current_score = post_score(0)
+
     while(True):
         if (time.time() - global_start) > 30:
             global_start = time.time()
@@ -184,7 +186,8 @@ def main():
                 points_to_send = -25
             
             # print "Hit cloud api with %s " % points_to_send
-            post_score(points_to_send)
+            current_score = int(post_score(points_to_send))
+            # print "hit cloud and it returned", current_score
             negative_points = 0
 
 
@@ -200,7 +203,7 @@ def main():
         cv2.putText(frame, screentime, (locx, locy), fontFace, fontScale, fontColor)
         locy = int(frame.shape[0]*5/100) # the text location will be in the middle
         locx = int(frame.shape[1]*30/100) #           of the frame for this example
-        cv2.putText(frame, "Your last score was: " + str(points_to_send), (locx, locy), fontFace, fontScale, fontColor) 
+        cv2.putText(frame, "Your current score is: " + str(current_score), (locx, locy), fontFace, fontScale, fontColor) 
 
         #Looking for faces with cascade
         #The classifier moves over the ROI
@@ -370,6 +373,7 @@ def main():
             if (end - start) > 2:
                 distracted = False            
                 negative_points += 15
+                if DEBUG: print "Distracted! negative_points =", negative_points
                 # print "points to send", 25 - negative_points
 
         #Drawing a yellow rectangle
