@@ -9,6 +9,18 @@ import logging
     # write to database 
     # do calculations in py file
 #################################
+
+def get_tsys():
+    account_id = "00000022340"
+    access_token = "BWx/gfXk0RpFthUECBO0W0mKvyRCrVTdTkbxdv+DKT4="    
+    headers = {"Authorization": "Bearer BWx/gfXk0RpFthUECBO0W0mKvyRCrVTdTkbxdv+DKT4=",
+            "Content-Type" : "application/json",
+            "Accept" : "application/json"}
+    url = "https://developers.tsys.com/sandbox/rewards/{}/information".format(account_id)
+
+    result = requests.get(url, headers=headers)
+    logger.warn(result.json())
+
 def getActualChange(request):
     #accept their scoreChange input
     searchURL = ""
@@ -85,6 +97,7 @@ def mysql_demo(request):
         if updatedScore >= 100:
             updatedScore = 50
             #call tsys
+            get_tsys()
         elif updatedScore <= 0:
             updatedScore = 0
         updatedScore = str(updatedScore)

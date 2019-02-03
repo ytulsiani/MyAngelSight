@@ -14,7 +14,7 @@ def get_tsys():
     url = "https://developers.tsys.com/sandbox/rewards/{}/information".format(account_id)
 
     result = requests.get(url, headers=headers)
-    pprint(result.json())    
+    pprint(result.json())
 
 def post_tsys():
     url="https://developers.tsys.com/sandbox/rewards/{}/redemption/directdeposit".format("00000013815")
