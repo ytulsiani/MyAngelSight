@@ -103,3 +103,5 @@ venv.bak/
 
 .vscode/
 .DS_Store*
+.secrets
+Archive.zip
