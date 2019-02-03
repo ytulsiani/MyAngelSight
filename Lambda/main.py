@@ -90,5 +90,6 @@ def mysql_demo(request):
         updatedScore = str(updatedScore)
         final = cursor.execute("UPDATE score SET score = %s WHERE userid = %s" % (updatedScore, userid))
         
+        return str(updatedScore)
 if __name__=="__main__":
     mysql_demo({"userid": "1", "score":"1"})
