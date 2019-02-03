@@ -1,6 +1,6 @@
-###MyAngelSight Website
+# MyAngelSight Website
 
-#This site has been updated from a publicly available template by our team.
+### This site has been updated from a publicly available template by our team.
 
 Updated by: Natalie Wilkinson, Yash Tulsiani, Alberto Li, and Sanjana Jampana
 
