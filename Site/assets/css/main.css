@@ -37,6 +37,14 @@ ol, ul {
 	list-style: none;
 }
 
+iframe {
+    display: block;
+    width: 600px;
+    height: 400px;
+    margin: 0 auto;
+    border: 0;
+}
+
 blockquote, q {
 	quotes: none;
 }
