@@ -6,7 +6,7 @@
 # This is an example of head pose estimation with solvePnP.
 # It uses the dlib library and openCV
 #
-
+import time
 import numpy
 import cv2
 import sys
@@ -148,8 +148,15 @@ def main():
     roi_resize_w = int(cam_w/10)
     roi_resize_h = int(cam_h/10)
 
-    while(True):
+    start = 0
+    end = 0
+    startNotDistracted = 0
+    endNotDistracted = 0
+    startTimer = False
+    INITIALIZED = False
+    distracted = False
 
+    while(True):
         # Capture frame-by-frame
         ret, frame = video_capture.read()
         gray = cv2.cvtColor(frame[roi_y1:roi_y2, roi_x1:roi_x2], cv2.COLOR_BGR2GRAY)
@@ -184,7 +191,17 @@ def main():
 
         #Checking wich kind of face it is returned
         if(my_cascade.face_type > 0):
+            if distracted is True:
+                if startTimer is False:
+                    startTimer = True
+                    startNotDistracted = time.time()
+                else:
+                    endNotDistracted = time.time()
+                if endNotDistracted - startNotDistracted > 2:
+                    distracted = False
+                    startTimer = False
 
+            INITIALIZED = True
             #Face found, reset the error counter
             no_face_counter = 0
 
@@ -240,8 +257,8 @@ def main():
 
             #Debugging printing utilities
             if(DEBUG == True):
-                print("FACE: ", face_x1, face_y1, face_x2, face_y2, face_w, face_h)
-                print("ROI: ", roi_x1, roi_y1, roi_x2, roi_y2, roi_w, roi_h)
+                # print("FACE: ", face_x1, face_y1, face_x2, face_y2, face_w, face_h)
+                # print("ROI: ", roi_x1, roi_y1, roi_x2, roi_y2, roi_w, roi_h)
                 #Drawing a green rectangle
                 # (and text) around the face.
                 text_x1 = face_x1
@@ -276,6 +293,8 @@ def main():
                 retval, rvec, tvec = cv2.solvePnP(landmarks_3D, 
                                                   landmarks_2D, 
                                                   camera_matrix, camera_distortion)
+                # print("rvec: ", rvec[0],rvec[1])
+                # print("tvec: ", tvec[0],rvec[1])
 
                 #Now we project the 3D points into the image plane
                 #Creating a 3-axis to be used as reference in the image.
@@ -285,13 +304,35 @@ def main():
                 imgpts, jac = cv2.projectPoints(axis, rvec, tvec, camera_matrix, camera_distortion)
 
                 #Drawing the three axis on the image frame.
-                #The opencv colors are defined as BGR colors such as: 
+                #The opencv colors are defined as BGR colors such as:
                 # (a, b, c) >> Blue = a, Green = b and Red = c
                 #Our axis/color convention is X=R, Y=G, Z=B
-                sellion_xy = (landmarks_2D[7][0], landmarks_2D[7][1])
-                cv2.line(frame, sellion_xy, tuple(imgpts[1].ravel()), (0,255,0), 3) #GREEN
-                cv2.line(frame, sellion_xy, tuple(imgpts[2].ravel()), (255,0,0), 3) #BLUE
-                cv2.line(frame, sellion_xy, tuple(imgpts[0].ravel()), (0,0,255), 3) #RED
+                try:
+                    sellion_xy = (landmarks_2D[7][0], landmarks_2D[7][1])
+                    cv2.line(frame, sellion_xy, tuple(imgpts[1].ravel()), (0,255,0), 3) #GREEN
+                    cv2.line(frame, sellion_xy, tuple(imgpts[2].ravel()), (255,0,0), 3) #BLUE
+                    cv2.line(frame, sellion_xy, tuple(imgpts[0].ravel()), (0,0,255), 3) #RED
+                    # print "sellion_xy: ", sellion_xy
+                except:
+                    continue
+                    # pass
+
+        elif (INITIALIZED):
+            if not distracted:
+                start = time.time()
+                distracted = True
+            else:
+                end = time.time()
+                # print "END was initialized"
+        
+        
+        ##################### TO DO ######################
+        print round((end - start),2)
+        if (end - start) > 5:
+            distracted = False
+            # Hit google cloud function
+            print "Google cloud was hit!"
+            pass
 
         #Drawing a yellow rectangle
         # (and text) around the ROI.
